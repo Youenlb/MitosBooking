@@ -39,8 +39,8 @@ class MyLibraryViewModel @Inject constructor(
     private val _isLoadingBook = MutableStateFlow(false)
     val isLoadingBook: StateFlow<Boolean> = _isLoadingBook
 
+
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
 
     val books: StateFlow<List<Book>> = bookRepository.getAllBooks()
         .stateIn(
@@ -169,12 +169,44 @@ class MyLibraryViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
+    fun addBookManually(title: String, authors: String, isbn: String, covers: String) {
+        viewModelScope.launch {
+            try {
+                // ISBN est obligatoire
+                if (isbn.isBlank()) {
+                    _toastMessages.emit("L'ISBN est obligatoire")
+                    return@launch
+                }
+                if (title.isBlank()) {
+                    _toastMessages.emit("Le titre est obligatoire")
+                    return@launch
+                }
+
+                val book = Book(
+                    uid = UUID.randomUUID().toString(),
+                    isbn = isbn,
+                    title = title,
+                    authors = authors.ifBlank { null },
+                    covers = covers.ifBlank { null },
+                    borrowerId = null,
+                    lenderId = null,
+                )
+                bookRepository.insertBook(book)
+                _toastMessages.emit("Livre ajouté à votre bibliothèque !")
+            } catch (e: Exception) {
+                val errorMsg = "Erreur lors de l'ajout du livre : ${e.localizedMessage}"
+                _errorMessage.value = errorMsg
+                _toastMessages.emit(errorMsg)
+            }
+        }
+    }
+
     // Helper function to get a user by ID and handle potential null values
     suspend fun getUserFullName(userId: String?): String {
         return if (userId != null) {
             try {
                 bookRepository.getUserById(userId).first().fullName
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "Utilisateur inconnu"
             }
         } else {
