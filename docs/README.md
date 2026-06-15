@@ -24,6 +24,18 @@
 | [Flux utilisateur](./USER_FLOWS.md) | Parcours détaillés ajout / prêt / retour / profil avec diagrammes de séquence |
 | [Structure du projet](./PROJECT_STRUCTURE.md) | Organisation des packages, rôle de chaque fichier, fichiers legacy |
 
+## APK pré-compilé
+
+Un APK debug prêt à installer est disponible dans le dossier [`release/`](../release/) :
+
+```
+release/
+├── app-debug.apk          # APK installable
+└── output-metadata.json    # Métadonnées de build
+```
+
+> **Installation** : `adb install release/app-debug.apk`
+
 ## Build & Run
 
 ```bash
